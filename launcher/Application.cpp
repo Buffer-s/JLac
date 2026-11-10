@@ -589,9 +589,18 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     }
 
     {
+        // JL is built on Prism Launcher: offer to take over an existing Prism
+        // installation (instances, accounts, everything) before falling back to
+        // the older MultiMC-family launchers.
         auto migrated = handleDataMigration(
-            dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PolyMC"), "PolyMC",
-            "polymc.cfg");
+            dataPath,
+            FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation), BuildConfig.PRISM_DATA_FOLDER),
+            "Prism Launcher", "prismlauncher.cfg");
+        if (!migrated) {
+            migrated = handleDataMigration(dataPath,
+                                           FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PolyMC"),
+                                           "PolyMC", "polymc.cfg");
+        }
         if (!migrated) {
             handleDataMigration(dataPath,
                                 FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../multimc"),
@@ -1087,9 +1096,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
     // check update locks
     {
-        auto updateLogPath = FS::PathCombine(m_dataPath, "logs", "prism_launcher_update.log");
+        auto updateLogPath = FS::PathCombine(m_dataPath, "logs", "jl_update.log");
 
-        auto updateLock = QFileInfo(FS::PathCombine(m_dataPath, ".prism_launcher_update.lock"));
+        auto updateLock = QFileInfo(FS::PathCombine(m_dataPath, ".jl_update.lock"));
         if (updateLock.exists()) {
             auto [timestamp, from, to, target, lockDataPath] = readLockFile(updateLock.absoluteFilePath());
             auto infoMsg = tr("This installation has a update lock file present at: %1\n"
@@ -1101,7 +1110,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
                               "\n"
                               "This likely means that a update attempt failed. Please ensure your installation is in working order before "
                               "proceeding.\n"
-                              "Check the Prism Launcher updater log at: \n"
+                              "Check the JL updater log at: \n"
                               "%7\n"
                               "for details on the last update attempt.\n"
                               "\n"
@@ -1135,13 +1144,13 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             }
         }
 
-        auto updateFailMarker = QFileInfo(FS::PathCombine(m_dataPath, ".prism_launcher_update.fail"));
+        auto updateFailMarker = QFileInfo(FS::PathCombine(m_dataPath, ".jl_update.fail"));
         if (updateFailMarker.exists()) {
             auto infoMsg = tr("An update attempt failed\n"
                               "\n"
                               "Please ensure your installation is in working order before "
                               "proceeding.\n"
-                              "Check the Prism Launcher updater log at: \n"
+                              "Check the JL updater log at: \n"
                               "%1\n"
                               "for details on the last update attempt.")
                                .arg(updateLogPath);
@@ -1171,12 +1180,12 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             }
         }
 
-        auto updateSuccessMarker = QFileInfo(FS::PathCombine(m_dataPath, ".prism_launcher_update.success"));
+        auto updateSuccessMarker = QFileInfo(FS::PathCombine(m_dataPath, ".jl_update.success"));
         if (updateSuccessMarker.exists()) {
             auto infoMsg = tr("Update succeeded\n"
                               "\n"
                               "You are now running %1 .\n"
-                              "Check the Prism Launcher updater log at: \n"
+                              "Check the JL updater log at: \n"
                               "%2\n"
                               "for details.")
                                .arg(BuildConfig.printableVersionString())
@@ -1286,14 +1295,10 @@ bool Application::createSetupWizard()
             settings()->set("IconTheme", defaultIconTheme);
         }
         if (!validWidgets) {
-#if defined(Q_OS_LINUX)
-            const QString style = "system";
-#else
-            const QString style = darkMode ? QStringLiteral("dark") : QStringLiteral("bright");
-
-#endif
-
-            settings()->set("ApplicationTheme", style);
+            // JL ships a single deliberate look. Users can still pick another
+            // theme in Settings -> Appearance.
+            settings()->set("ApplicationTheme", QStringLiteral("jl-dark"));
+            Q_UNUSED(darkMode);
         }
 
         m_themeManager->applyCurrentlySelectedTheme(true);
@@ -2031,6 +2036,8 @@ bool Application::handleDataMigration(const QString& currentData, const QString&
         filters.append(startsWith("libraries/"));
         filters.append(startsWith("mods/"));
         filters.append(startsWith("themes/"));
+        filters.append(startsWith("iconthemes/"));
+        filters.append(startsWith("catpacks/"));
 
         ProgressDialog diag;
         DataMigrationTask task(oldData, currentData, any(std::move(filters)));

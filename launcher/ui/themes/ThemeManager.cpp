@@ -30,6 +30,7 @@
 #include "ui/themes/CatPack.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/DarkTheme.h"
+#include "ui/themes/JLTheme.h"
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
@@ -146,6 +147,9 @@ void ThemeManager::initializeWidgets()
     auto darkThemeId = addTheme(std::make_unique<DarkTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << darkThemeId;
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<BrightTheme>());
+
+    auto jlThemeId = addTheme(std::make_unique<JLTheme>());
+    themeDebugLog() << "Loading Built-in Theme:" << jlThemeId;
 
     themeDebugLog() << "<> Initializing System Widget Themes";
     QStringList styles = QStyleFactory::keys();

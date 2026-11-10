@@ -854,6 +854,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/DarkTheme.h
     ui/themes/ITheme.cpp
     ui/themes/ITheme.h
+    ui/themes/JLTheme.cpp
+    ui/themes/JLTheme.h
     ui/themes/HintOverrideProxyStyle.cpp
     ui/themes/HintOverrideProxyStyle.h
     ui/themes/SystemTheme.cpp
@@ -1045,6 +1047,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ExportPackDialog.h
     ui/dialogs/ExportToModListDialog.cpp
     ui/dialogs/ExportToModListDialog.h
+    ui/dialogs/FabricVersionsDialog.cpp
+    ui/dialogs/FabricVersionsDialog.h
     ui/dialogs/IconPickerDialog.cpp
     ui/dialogs/IconPickerDialog.h
     ui/dialogs/ImportResourceDialog.cpp
@@ -1205,6 +1209,11 @@ qt_add_resources(LAUNCHER_RESOURCES
     resources/shaders/shaders.qrc
     "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
 )
+
+# The binary icon resource is generated as "${Launcher_APP_BINARY_NAME}.qrc"
+# (= "JL.qrc"), so Q_INIT_RESOURCE() in main.cpp uses the same name via
+# Launcher_APP_BINARY_NAME. Keep the resource file name in sync with it.
+set_property(SOURCE "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}" PROPERTY QRC_NAME "${Launcher_APP_BINARY_NAME}")
 
 ######## Windows resource files ########
 if(WIN32)

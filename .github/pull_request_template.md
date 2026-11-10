@@ -1,11 +1,20 @@
 <!--
-Hey there! Thanks for your contribution.
+Thanks for contributing to JL!
 
-Please make sure that your commits are signed off first.
-If you don't know how that works, check out our contribution guidelines: https://github.com/PrismLauncher/PrismLauncher/blob/develop/CONTRIBUTING.md#signing-your-work
-If you already created your commits, you can run `git rebase --signoff develop` to retroactively sign-off all your commits and `git push --force` to override what you have pushed already.
-
-Note that signing and signing-off are two different things!
-
-If you used AI assistance for your contribution, please make sure you are aware of our restrictions: https://github.com/PrismLauncher/PrismLauncher/blob/develop/CONTRIBUTING.md#restrictions-on-generative-ai-usage-ai-policy
+Small, focused pull requests get merged fastest. If you changed UI, a
+screenshot helps a lot.
 -->
+
+## What does this change?
+
+<!-- One or two sentences. -->
+
+## Why?
+
+<!-- The problem this solves. Link an issue if there is one. -->
+
+## Checklist
+
+- [ ] Built and ran the launcher locally (`cmake --preset default && cmake --build --preset default`)
+- [ ] Tested on Windows (JL ships a Windows build)
+- [ ] No new Prism Launcher branding leaked into the UI

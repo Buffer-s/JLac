@@ -113,7 +113,7 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A custom launcher that makes managing Minecraft easier by allowing you to have multiple instances of Minecraft at once.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A minimal, Fabric-first Minecraft launcher. Import your Prism Launcher instances, pick a game version and a Fabric loader build, and play.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -289,6 +289,16 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="viewInGithub">
+       <property name="text">
+        <string>View in GitHub</string>
+       </property>
+       <property name="toolTip">
+        <string>Open the JL source code on GitHub</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="aboutQt">
        <property name="autoFillBackground">

@@ -56,6 +56,12 @@ class Config {
     QString LAUNCHER_SVGFILENAME;
     QString LAUNCHER_ENVNAME;
 
+    /**
+     * Folder name Prism Launcher uses for its data directory. JL offers to import
+     * an existing Prism installation on first start.
+     */
+    QString PRISM_DATA_FOLDER;
+
     /// The major version number.
     int VERSION_MAJOR;
     /// The minor version number.

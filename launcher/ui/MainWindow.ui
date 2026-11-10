@@ -212,6 +212,7 @@
      <bool>true</bool>
     </property>
     <addaction name="actionClearMetadata"/>
+    <addaction name="actionFabricVersions"/>
     <addaction name="actionReportBug"/>
     <addaction name="actionViewLog"/>
     <addaction name="actionAddToPATH"/>
@@ -642,6 +643,17 @@
    </property>
    <property name="toolTip">
     <string>Open %1 subreddit.</string>
+   </property>
+  </action>
+  <action name="actionFabricVersions">
+   <property name="icon">
+    <iconset theme="fabricmc"/>
+   </property>
+   <property name="text">
+    <string>Fabric &amp;Versions</string>
+   </property>
+   <property name="toolTip">
+    <string>Browse every Fabric loader build, grouped by Minecraft version</string>
    </property>
   </action>
   <action name="actionAbout">
