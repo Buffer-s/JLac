@@ -138,14 +138,30 @@ void FabricVersionsDialog::refresh()
     m_status->setText(tr("Loading..."));
     m_count->clear();
 
-    m_list = APPLICATION->metadataIndex()->get(kFabricUid).get();
-    auto task = m_list->getLoadTask(true);
-    connect(task.get(), &Task::succeeded, this, &FabricVersionsDialog::populate);
-    connect(task.get(), &Task::failed, this, [this](const QString& reason) {
+    // Re-resolve through the index: it hands back the shared list instance.
+    Meta::VersionList* list = APPLICATION->metadataIndex()->get(kFabricUid).get();
+    if (!list) {
         m_refreshButton->setEnabled(true);
-        m_status->setText(tr("Could not load Fabric versions: %1").arg(reason));
-    });
-    task->start();
+        m_status->setText(tr("Fabric metadata is unavailable."));
+        return;
+    }
+    m_list = list;
+
+    // Populate from the cached list immediately so the window is never empty
+    // while the refresh runs.
+    if (m_list->isLoaded())
+        populate();
+
+    const Task::Ptr& task = m_list->getLoadTask(true);
+    connect(task.get(), &Task::succeeded, this, &FabricVersionsDialog::populate, Qt::UniqueConnection);
+    connect(task.get(), &Task::failed, this,
+            [this](const QString& reason) {
+                m_refreshButton->setEnabled(true);
+                m_status->setText(tr("Could not load Fabric versions: %1").arg(reason));
+            },
+            Qt::UniqueConnection);
+    if (!task->isRunning())
+        task->start();
 }
 
 void FabricVersionsDialog::populate()
@@ -216,13 +232,6 @@ void FabricVersionsDialog::populate()
         root->appendRow(parent);
     }
 
-    auto* proxy = new FabricVersionsProxy(this);
-    proxy->setSourceModel(model);
-    m_view->setModel(proxy);
-    m_view->expandAll();
-    m_view->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_view->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-
     // Keep the Minecraft selector in sync without losing the user's choice.
     {
         QSignalBlocker blocker(m_mcFilter);
@@ -233,6 +242,18 @@ void FabricVersionsDialog::populate()
         const int index = m_mcFilter->findData(previousFilter);
         m_mcFilter->setCurrentIndex(index >= 0 ? index : 0);
     }
+
+    auto* proxy = new FabricVersionsProxy(this);
+    proxy->setSourceModel(model);
+    m_view->setModel(proxy);
+    m_view->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_view->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+
+    // Re-apply whatever the user had typed/selected before the refresh.
+    proxy->setSearch(m_search->text());
+    proxy->setMinecraftFilter(m_mcFilter->currentData().toString());
+    proxy->setReleasesOnly(m_releasesOnly->isChecked());
+    m_view->expandAll();
 
     m_status->setText(tr("Updated just now"));
     updateCount();

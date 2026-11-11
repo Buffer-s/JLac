@@ -50,11 +50,14 @@ configure_file(${Launcher_AppID}.metainfo.xml.in ${Launcher_AppID}.metainfo.xml)
 configure_file(${Launcher_APP_BINARY_NAME}.rc.in ${Launcher_APP_BINARY_NAME}.rc @ONLY)
 configure_file(${Launcher_APP_BINARY_NAME}.qrc.in ${Launcher_APP_BINARY_NAME}.qrc @ONLY)
 configure_file(${Launcher_APP_BINARY_NAME}.manifest.in ${Launcher_APP_BINARY_NAME}.manifest @ONLY)
-configure_file(${Launcher_Branding_ICO} ${Launcher_APP_BINARY_NAME}.ico COPYONLY)
-configure_file(${Launcher_SVGFileName} ${Launcher_SVGFileName} COPYONLY)
-# The window icon is looked up as ":/<Launcher_SVGFileName>"; keep a copy under the AppID
-# name too so the .desktop Icon= key and the Qt resource agree.
-configure_file(${Launcher_SVGFileName} ${Launcher_AppID}.svg COPYONLY)
+# Launcher_Branding_ICO is relative to the source root (for the NSIS/packaging
+# scripts); configure_file resolves relative to this directory, so point it at the
+# absolute source path.
+configure_file("${CMAKE_SOURCE_DIR}/${Launcher_Branding_ICO}" ${Launcher_APP_BINARY_NAME}.ico COPYONLY)
+# The window icon is looked up as ":/<Launcher_SVGFileName>". The SVG lives in the
+# source tree, so copy it next to this build-relative resource (the .qrc aliases it
+# under both the SVG name and the AppID used by the .desktop file).
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_SVGFileName}" jlac.svg COPYONLY)
 configure_file(${Launcher_AppID}.mime.xml ${Launcher_AppID}.xml COPYONLY)
 
 if(MSVC)

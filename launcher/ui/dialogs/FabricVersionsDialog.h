@@ -29,7 +29,9 @@ class QLineEdit;
 class QPushButton;
 class QTreeView;
 
+namespace Meta {
 class VersionList;
+}
 
 /**
  * Browses every Fabric loader build, grouped by Minecraft version, with the
@@ -52,7 +54,7 @@ class FabricVersionsDialog : public QDialog {
     void populate();
     void updateCount();
 
-    VersionList* m_list = nullptr;
+    Meta::VersionList* m_list = nullptr;
     QLineEdit* m_search = nullptr;
     QComboBox* m_mcFilter = nullptr;
     QCheckBox* m_releasesOnly = nullptr;

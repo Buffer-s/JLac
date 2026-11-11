@@ -16,10 +16,13 @@ BEGIN
                 BLOCK "000004b0"
                 BEGIN
                         VALUE "CompanyName", "@Launcher_Authors@"
-                        VALUE "FileDescription", "@Launcher_DisplayName@"
+                        VALUE "FileDescription", "@Launcher_DisplayName@ - Minecraft Launcher (Fabric)"
                         VALUE "FileVersion", "@Launcher_VERSION_NAME4@"
+                        VALUE "InternalName", "@Launcher_APP_BINARY_NAME@"
+                        VALUE "OriginalFilename", "@Launcher_APP_BINARY_NAME@.exe"
                         VALUE "ProductName", "@Launcher_DisplayName@"
                         VALUE "ProductVersion", "@Launcher_VERSION_NAME4@"
+                        VALUE "LegalCopyright", "@Launcher_Copyright@"
                 END
         END
         BLOCK "VarFileInfo"

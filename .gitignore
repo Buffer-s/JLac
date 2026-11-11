@@ -62,3 +62,8 @@ flatbuild
 
 # Snap
 *.snap
+
+# JL maintenance tooling
+__pycache__/
+*.pyc
+out/

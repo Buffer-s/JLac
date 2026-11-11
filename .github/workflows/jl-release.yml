@@ -57,10 +57,7 @@ jobs:
           restore-keys: jl-vcpkg-${{ runner.os }}-
 
       - name: Configure
-        run: >
-          cmake --preset "$env:CMAKE_PRESET"
-          -D VCPKG_HOST_TRIPLET=x64-windows
-          -D VCPKG_TARGET_TRIPLET=x64-windows
+        run: cmake --preset "$env:CMAKE_PRESET" -D VCPKG_HOST_TRIPLET=x64-windows -D VCPKG_TARGET_TRIPLET=x64-windows
 
       - name: Build
         run: cmake --build --preset "$env:CMAKE_PRESET" --config Release
@@ -68,6 +65,13 @@ jobs:
       - name: Collect portable build
         shell: pwsh
         run: pwsh -NoProfile -File tools/jlac/package-portable.ps1
+
+      - name: Verify build output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "out/JL.exe")) { Write-Host "::error::JL.exe missing"; exit 1 }
+          if (-not (Test-Path "out/JL-Windows-x64.zip")) { Write-Host "::error::portable zip missing"; exit 1 }
+          Get-ChildItem out | Format-Table Name, Length
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v7

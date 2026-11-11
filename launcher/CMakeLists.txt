@@ -1210,11 +1210,6 @@ qt_add_resources(LAUNCHER_RESOURCES
     "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
 )
 
-# The binary icon resource is generated as "${Launcher_APP_BINARY_NAME}.qrc"
-# (= "JL.qrc"), so Q_INIT_RESOURCE() in main.cpp uses the same name via
-# Launcher_APP_BINARY_NAME. Keep the resource file name in sync with it.
-set_property(SOURCE "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}" PROPERTY QRC_NAME "${Launcher_APP_BINARY_NAME}")
-
 ######## Windows resource files ########
 if(WIN32)
     set(LAUNCHER_RCS ${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_WindowsRC})
