@@ -135,17 +135,9 @@ InstallLoaderDialog::InstallLoaderDialog(PackProfile* profile, const QString& ui
 
 QList<BasePage*> InstallLoaderDialog::getPages()
 {
-    return { // NeoForge
-             new InstallLoaderPage("net.neoforged", "neoforged", tr("NeoForge"), {}, profile),
-             // Forge
-             new InstallLoaderPage("net.minecraftforge", "forge", tr("Forge"), {}, profile),
-             // Fabric
-             new InstallLoaderPage("net.fabricmc.fabric-loader", "fabricmc", tr("Fabric"), Version("1.14"), profile),
-             // Quilt
-             new InstallLoaderPage("org.quiltmc.quilt-loader", "quiltmc", tr("Quilt"), Version("1.14"), profile),
-             // LiteLoader
-             new InstallLoaderPage("com.mumfrey.liteloader", "liteloader", tr("LiteLoader"), {}, profile)
-    };
+    // JL is Fabric-only. Everything else (Forge, NeoForge, Quilt, LiteLoader) is
+    // intentionally not offered, so instances stay Fabric.
+    return { new InstallLoaderPage("net.fabricmc.fabric-loader", "fabricmc", tr("Fabric"), Version("1.14"), profile) };
 }
 
 QString InstallLoaderDialog::dialogTitle()

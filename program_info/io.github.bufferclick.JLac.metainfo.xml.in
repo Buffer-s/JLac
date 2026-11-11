@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>@Launcher_AppID@</id>
+  <name>JL</name>
+  <summary>Fast, minimal launcher for Minecraft (Fabric)</summary>
+  <developer id="io.github.bufferclick">
+    <name>Buffer</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <description>
+    <p>JL is a Fabric-first Minecraft launcher built on Prism Launcher. Import your Prism instances, create Fabric instances in two clicks and keep every loader release in view.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Imports Prism Launcher instances as-is</li>
+      <li>Fabric-only: one list for game versions, one list for loader builds</li>
+      <li>Microsoft login for online play</li>
+      <li>Install and update mods, modpacks, worlds and resource packs</li>
+      <li>Full instance isolation, Java management and log viewer</li>
+    </ul>
+  </description>
+  <url type="homepage">https://github.com/bufferclick/JLac</url>
+  <url type="bugtracker">https://github.com/bufferclick/JLac/issues</url>
+  <url type="vcs-browser">https://github.com/bufferclick/JLac</url>
+  <launchable type="desktop-id">@Launcher_AppID@.desktop</launchable>
+  <provides>
+    <binary>@Launcher_APP_BINARY_NAME@</binary>
+  </provides>
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-info">mild</content_attribute>
+  </content_rating>
+  <releases>
+    <release version="@Launcher_VERSION_NAME@" date="2026-11-10"/>
+  </releases>
+</component>

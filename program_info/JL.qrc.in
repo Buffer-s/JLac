@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file alias="@Launcher_SVGFileName@">jlac.svg</file>
+        <file alias="@Launcher_AppID@.svg">jlac.svg</file>
+    </qresource>
+</RCC>

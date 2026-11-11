@@ -94,6 +94,7 @@
 #include "InstanceWindow.h"
 
 #include "ui/dialogs/AboutDialog.h"
+#include "ui/dialogs/FabricVersionsDialog.h"
 #include "ui/dialogs/CopyInstanceDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -333,14 +334,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         connect(view, &InstanceView::groupStateChanged, APPLICATION->instances(), &InstanceList::on_GroupStateChanged);
         ui->horizontalLayout->addWidget(view);
     }
-    // The cat background
-    {
-        // set the cat action priority here so you can still see the action in qt designer
-        ui->actionCAT->setPriority(QAction::LowPriority);
-        updateCatState();
-        connect(ui->actionCAT, &QAction::toggled, this, &MainWindow::onCatToggled);
-        connect(APPLICATION, &Application::currentCatChanged, this, &MainWindow::onCatChanged);
-    }
+    // JL has no cat-pack background: the instance view never paints a mascot.
+    updateCatState();
 
     // Togglable status bar
     {
@@ -825,31 +820,13 @@ void MainWindow::updateNewsLabel()
     }
 }
 
-void MainWindow::onCatToggled(bool state)
-{
-    setCatBackground(state);
-    APPLICATION->settings()->set("TheCat", state);
-}
-
-void MainWindow::setCatBackground(bool enabled)
-{
-    view->setPaintCat(enabled);
-    view->viewport()->repaint();
-}
-
 void MainWindow::updateCatState()
 {
-    SettingsObject* settings = APPLICATION->settings();
-    const bool catEnabled = settings->get("EnableCat").toBool();
-    bool catVisible = settings->get("TheCat").toBool();
-    if (!catEnabled && catVisible) {
-        settings->set("TheCat", false);
-        catVisible = false;
-    }
-
-    ui->actionCAT->setVisible(catEnabled);
-    ui->actionCAT->setChecked(catVisible);
-    setCatBackground(catVisible);
+    // JL drops Prism's cat-pack menu decoration entirely, so the background
+    // mascot is always off.
+    APPLICATION->settings()->set("EnableCat", false);
+    APPLICATION->settings()->set("TheCat", false);
+    view->setPaintCat(false);
 }
 
 void MainWindow::runModalTask(Task* task)
@@ -953,7 +930,7 @@ void MainWindow::processURLs(QList<QUrl> urls)
                 } else {
                     CustomMessageBox::selectable(
                         this, tr("Error"),
-                        tr("Unsupported Modrinth link.\n\nPrism Launcher currently only supports modpack links such as "
+                        tr("Unsupported Modrinth link.\n\nJL currently only supports modpack links such as "
                            "modrinth://modpack/fabulously-optimized."),
                         QMessageBox::Critical)
                         ->show();
@@ -1039,10 +1016,10 @@ void MainWindow::processURLs(QList<QUrl> urls)
                     receivedData.insert(it->first, it->second);
                 emit APPLICATION->oauthReplyRecieved(receivedData);
                 continue;
-            } else if ((url.scheme() == "prismlauncher" || url.scheme() == BuildConfig.LAUNCHER_APP_BINARY_NAME) && isExternalURLImport) {
-                // PrismLauncher URL protocol modpack import
+            } else if ((url.scheme() == "jl" || url.scheme() == BuildConfig.LAUNCHER_APP_BINARY_NAME) && isExternalURLImport) {
+                // JL URL protocol modpack import
                 // works for any prism fork
-                // preferred import format: prismlauncher://import?url=ENCODED
+                // preferred import format: jl://import?url=ENCODED
                 const auto host = url.host().toLower();
                 const auto path = url.path();
 
@@ -1056,7 +1033,7 @@ void MainWindow::processURLs(QList<QUrl> urls)
                     }
                 }
 
-                // alternative import format: prismlauncher://import/ENCODED
+                // alternative import format: jl://import/ENCODED
                 if (encodedTarget.isEmpty()) {
                     QString p = path;
 
@@ -1366,11 +1343,6 @@ void MainWindow::on_actionViewWidgetThemeFolder_triggered()
     DesktopServices::openPath(APPLICATION->themeManager()->getApplicationThemesFolder().path(), true);
 }
 
-void MainWindow::on_actionViewCatPackFolder_triggered()
-{
-    DesktopServices::openPath(APPLICATION->themeManager()->getCatPacksFolder().path(), true);
-}
-
 void MainWindow::on_actionViewIconsFolder_triggered()
 {
     DesktopServices::openPath(APPLICATION->icons()->getDirectory(), true);
@@ -1420,7 +1392,7 @@ void MainWindow::globalSettingsClosed()
     updateStatusCenter();
     updateCatState();
     // This needs to be done to prevent UI elements disappearing in the event the config is changed
-    // but Prism Launcher exits abnormally, causing the window state to never be saved:
+    // but JL exits abnormally, causing the window state to never be saved:
     APPLICATION->settings()->set("MainWindowState", QString::fromUtf8(saveState().toBase64()));
     update();
 }
@@ -1474,6 +1446,12 @@ void MainWindow::on_actionClearMetadata_triggered()
     APPLICATION->metacache()->SaveNow();
 }
 
+void MainWindow::on_actionFabricVersions_triggered()
+{
+    FabricVersionsDialog dialog(this);
+    dialog.exec();
+}
+
 #ifdef Q_OS_MACOS
 void MainWindow::on_actionAddToPATH_triggered()
 {
@@ -1515,11 +1493,6 @@ void MainWindow::newsButtonClicked()
     NewsDialog news_dialog(entries, this);
     news_dialog.toggleArticleList();
     news_dialog.exec();
-}
-
-void MainWindow::onCatChanged(int)
-{
-    setCatBackground(APPLICATION->settings()->get("TheCat").toBool());
 }
 
 void MainWindow::on_actionAbout_triggered()

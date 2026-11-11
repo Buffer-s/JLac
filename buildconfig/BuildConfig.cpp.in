@@ -51,6 +51,7 @@ Config::Config()
     LAUNCHER_APPID = "@Launcher_AppID@";
     LAUNCHER_SVGFILENAME = "@Launcher_SVGFileName@";
     LAUNCHER_ENVNAME = "@Launcher_ENVName@";
+    PRISM_DATA_FOLDER = "@Launcher_PrismDataFolder@";
 
     USER_AGENT = "@Launcher_UserAgent@";
 

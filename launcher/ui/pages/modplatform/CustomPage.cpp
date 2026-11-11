@@ -45,6 +45,7 @@
 #include "meta/Index.h"
 #include "meta/VersionList.h"
 #include "minecraft/VanillaInstanceCreationTask.h"
+#include "ui/dialogs/FabricVersionsDialog.h"
 #include "ui/dialogs/NewInstanceDialog.h"
 
 CustomPage::CustomPage(NewInstanceDialog* dialog, QWidget* parent) : QWidget(parent), m_dialog(dialog), m_ui(new Ui::CustomPage)
@@ -60,12 +61,12 @@ CustomPage::CustomPage(NewInstanceDialog* dialog, QWidget* parent) : QWidget(par
     connect(m_ui->refreshBtn, &QPushButton::clicked, this, &CustomPage::refresh);
 
     connect(m_ui->loaderVersionList, &VersionSelectWidget::selectedVersionChanged, this, &CustomPage::setSelectedLoaderVersion);
-    connect(m_ui->noneFilter, &QRadioButton::toggled, this, &CustomPage::loaderFilterChanged);
-    connect(m_ui->forgeFilter, &QRadioButton::toggled, this, &CustomPage::loaderFilterChanged);
     connect(m_ui->fabricFilter, &QRadioButton::toggled, this, &CustomPage::loaderFilterChanged);
-    connect(m_ui->quiltFilter, &QRadioButton::toggled, this, &CustomPage::loaderFilterChanged);
-    connect(m_ui->liteLoaderFilter, &QRadioButton::toggled, this, &CustomPage::loaderFilterChanged);
     connect(m_ui->loaderRefreshBtn, &QPushButton::clicked, this, &CustomPage::loaderRefresh);
+    connect(m_ui->browseFabricButton, &QPushButton::clicked, this, [this] {
+        FabricVersionsDialog dialog(this);
+        dialog.exec();
+    });
 }
 
 void CustomPage::openedImpl()
@@ -74,6 +75,8 @@ void CustomPage::openedImpl()
         auto vlist = APPLICATION->metadataIndex()->get("net.minecraft");
         m_ui->versionList->initialize(vlist.get());
         m_initialized = true;
+        // Fabric is preselected and always on.
+        m_ui->fabricFilter->setChecked(true);
     } else {
         suggestCurrent();
     }
@@ -86,9 +89,6 @@ void CustomPage::refresh()
 
 void CustomPage::loaderRefresh()
 {
-    if (m_ui->noneFilter->isChecked()) {
-        return;
-    }
     m_ui->loaderVersionList->loadList(true);
 }
 
@@ -116,52 +116,36 @@ void CustomPage::filterChanged()
 
 void CustomPage::loaderFilterChanged()
 {
-    QString minecraftVersion;
-    if (m_selectedVersion) {
-        minecraftVersion = m_selectedVersion->descriptor();
-    } else {
+    // JL is Fabric-only: there is exactly one loader, so this no longer reacts to
+    // a radio button and always resolves Fabric builds for the chosen version.
+    const QString minecraftVersion = m_selectedVersion ? m_selectedVersion->descriptor() : QString();
+    if (minecraftVersion.isEmpty()) {
         m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "AAA");  // empty list
-        m_ui->loaderVersionList->setEmptyString(tr("No Minecraft version is selected."));
+        m_ui->loaderVersionList->setEmptyString(tr("Pick a Minecraft version first."));
         m_ui->loaderVersionList->setEmptyMode(VersionListView::String);
         return;
     }
-    if (m_ui->noneFilter->isChecked()) {
+
+    m_selectedLoader = "net.fabricmc.fabric-loader";
+
+    // Fabric supports Minecraft 1.14 and newer. Hide the list entirely for older
+    // versions instead of offering something that cannot work.
+    if (Version(minecraftVersion) < Version("1.14")) {
+        m_selectedLoaderVersion.reset();
         m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "AAA");  // empty list
-        m_ui->loaderVersionList->setEmptyString(tr("No mod loader is selected."));
+        m_ui->loaderVersionList->setEmptyString(tr("Fabric does not support Minecraft %1. Pick 1.14 or newer.").arg(minecraftVersion));
         m_ui->loaderVersionList->setEmptyMode(VersionListView::String);
+        suggestCurrent();
         return;
     }
-    if (m_ui->neoForgeFilter->isChecked()) {
-        m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, minecraftVersion);
-        m_selectedLoader = "net.neoforged";
-    } else if (m_ui->forgeFilter->isChecked()) {
-        m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, minecraftVersion);
-        m_selectedLoader = "net.minecraftforge";
-    } else if (m_ui->fabricFilter->isChecked()) {
-        // FIXME: dirty hack because the launcher is unaware of Fabric's dependencies
-        if (Version(minecraftVersion) >= Version("1.14")) {  // Fabric/Quilt supported
-            m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "");
-        } else {                                                                                 // Fabric/Quilt unsupported
-            m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "AAA");  // clear list
-        }
-        m_selectedLoader = "net.fabricmc.fabric-loader";
-    } else if (m_ui->quiltFilter->isChecked()) {
-        // FIXME: dirty hack because the launcher is unaware of Quilt's dependencies (same as Fabric)
-        if (Version(minecraftVersion) >= Version("1.14")) {  // Fabric/Quilt supported
-            m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "");
-        } else {                                                                                 // Fabric/Quilt unsupported
-            m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "AAA");  // clear list
-        }
-        m_selectedLoader = "org.quiltmc.quilt-loader";
-    } else if (m_ui->liteLoaderFilter->isChecked()) {
-        m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, minecraftVersion);
-        m_selectedLoader = "com.mumfrey.liteloader";
-    }
+
+    // FIXME: dirty hack because the launcher is unaware of Fabric's dependencies
+    m_ui->loaderVersionList->setExactFilter(BaseVersionList::ParentVersionRole, "");
 
     auto vlist = APPLICATION->metadataIndex()->get(m_selectedLoader);
     m_ui->loaderVersionList->initialize(vlist.get());
     m_ui->loaderVersionList->selectRecommended();
-    m_ui->loaderVersionList->setEmptyString(tr("No versions are currently available for Minecraft %1").arg(minecraftVersion));
+    m_ui->loaderVersionList->setEmptyString(tr("No Fabric builds are available for Minecraft %1 yet.").arg(minecraftVersion));
 }
 
 CustomPage::~CustomPage()
@@ -196,22 +180,8 @@ QString CustomPage::selectedLoader() const
 
 QString CustomPage::selectedLoaderName() const
 {
-    if (m_ui->neoForgeFilter->isChecked()) {
-        return m_ui->neoForgeFilter->text();
-    }
-    if (m_ui->forgeFilter->isChecked()) {
-        return m_ui->forgeFilter->text();
-    }
-    if (m_ui->fabricFilter->isChecked()) {
-        return m_ui->fabricFilter->text();
-    }
-    if (m_ui->quiltFilter->isChecked()) {
-        return m_ui->quiltFilter->text();
-    }
-    if (m_ui->liteLoaderFilter->isChecked()) {
-        return m_ui->liteLoaderFilter->text();
-    }
-    return QString();
+    // Fabric is the only loader JL installs, so this is no longer a user choice.
+    return QStringLiteral("Fabric");
 }
 
 void CustomPage::suggestCurrent()
@@ -225,9 +195,14 @@ void CustomPage::suggestCurrent()
         return;
     }
 
-    // There isn't a selected version if the version list is empty
-    if (m_ui->loaderVersionList->selectedVersion() == nullptr) {
-        m_dialog->setSuggestedPack(m_selectedVersion->descriptor(), new VanillaCreationTask(m_selectedVersion));
+    // Fabric needs 1.14+. Older versions can only be installed vanilla, so be
+    // explicit about it instead of silently dropping the loader.
+    if (m_selectedLoaderVersion == nullptr) {
+        if (Version(m_selectedVersion->descriptor()) < Version("1.14")) {
+            m_dialog->setSuggestedPack(m_selectedVersion->descriptor(), new VanillaCreationTask(m_selectedVersion));
+        } else {
+            m_dialog->setSuggestedPack();
+        }
     } else {
         QString suggestedName = QString("%1 %2").arg(m_selectedVersion->descriptor(), selectedLoaderName());
         m_dialog->setSuggestedPack(suggestedName, new VanillaCreationTask(m_selectedVersion, m_selectedLoader, m_selectedLoaderVersion));

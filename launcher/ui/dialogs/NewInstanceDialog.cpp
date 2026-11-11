@@ -109,7 +109,7 @@ NewInstanceDialog::NewInstanceDialog(const QString& initialGroup,
     // move this below.
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Help | QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    m_container = new PageContainer(this, {}, this);
+    m_container = new PageContainer(this, "vanilla", this);  // "vanilla" is the Fabric page in JL
     m_container->useSidebarStyle(false);
     m_container->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Expanding);
     m_container->layout()->setContentsMargins(0, 0, 0, 0);
@@ -244,6 +244,7 @@ QList<BasePage*> NewInstanceDialog::getPages()
 
     m_importPage = new ImportPage(this);
 
+    // Fabric ("Custom" page) first: it is the main way people make instances in JL.
     pages.append(new CustomPage(this));
     pages.append(m_importPage);
     pages.append(new AtlPage(this));

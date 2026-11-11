@@ -35,13 +35,15 @@
 
 #include "AboutDialog.h"
 #include <QIcon>
+#include <QUrl>
 #include "Application.h"
 #include "BuildConfig.h"
 #include "Markdown.h"
 #include "StringUtils.h"
 #include "ui_AboutDialog.h"
 
-#include <net/NetJob.h>
+#include "DesktopServices.h"
+#include "net/NetJob.h"
 
 namespace {
 QString getCreditsHtml()
@@ -116,9 +118,12 @@ AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent), ui(new Ui::AboutDia
 
     QString urlText("<html><head/><body><p><a href=\"%1\">%1</a></p></body></html>");
     ui->urlLabel->setText(urlText.arg(BuildConfig.LAUNCHER_GIT));
+    ui->urlLabel->setToolTip(tr("JL is open source. Click to view the repository."));
+    ui->viewInGithub->setIcon(QIcon::fromTheme("github"));
 
     ui->copyLabel->setText(BuildConfig.LAUNCHER_COPYRIGHT);
 
+    connect(ui->viewInGithub, &QPushButton::clicked, this, [this] { DesktopServices::openUrl(QUrl(BuildConfig.LAUNCHER_GIT)); });
     connect(ui->closeButton, &QPushButton::clicked, this, &AboutDialog::close);
 
     connect(ui->aboutQt, &QPushButton::clicked, APPLICATION, &QApplication::aboutQt);

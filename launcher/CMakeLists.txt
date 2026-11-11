@@ -854,6 +854,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/DarkTheme.h
     ui/themes/ITheme.cpp
     ui/themes/ITheme.h
+    ui/themes/JLTheme.cpp
+    ui/themes/JLTheme.h
     ui/themes/HintOverrideProxyStyle.cpp
     ui/themes/HintOverrideProxyStyle.h
     ui/themes/SystemTheme.cpp
@@ -1045,6 +1047,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ExportPackDialog.h
     ui/dialogs/ExportToModListDialog.cpp
     ui/dialogs/ExportToModListDialog.h
+    ui/dialogs/FabricVersionsDialog.cpp
+    ui/dialogs/FabricVersionsDialog.h
     ui/dialogs/IconPickerDialog.cpp
     ui/dialogs/IconPickerDialog.h
     ui/dialogs/ImportResourceDialog.cpp

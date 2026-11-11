@@ -39,6 +39,60 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
+        <layout class="QHBoxLayout" name="headerLayout">
+         <item>
+          <layout class="QVBoxLayout" name="headerTextLayout">
+           <item>
+            <widget class="QLabel" name="pageTitle">
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>New Fabric instance</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="pageSubtitle">
+             <property name="text">
+              <string>Pick a Minecraft version, then a Fabric loader build.</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="headerSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="browseFabricButton">
+           <property name="text">
+            <string>Browse Fabric builds</string>
+           </property>
+           <property name="toolTip">
+            <string>See every Fabric loader release, grouped by Minecraft version</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="minecraftLayout">
          <item>
           <widget class="VersionSelectWidget" name="versionList" native="true">
@@ -169,7 +223,7 @@
            <item>
             <widget class="QLabel" name="loaderLabel">
              <property name="text">
-              <string>Mod Loader</string>
+              <string>Loader</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -177,62 +231,15 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="noneFilter">
-             <property name="text">
-              <string>None</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">loaderBtnGroup</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="neoForgeFilter">
-             <property name="text">
-              <string>NeoForge</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">loaderBtnGroup</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="forgeFilter">
-             <property name="text">
-              <string>Forge</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">loaderBtnGroup</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
             <widget class="QRadioButton" name="fabricFilter">
              <property name="text">
               <string>Fabric</string>
              </property>
-             <attribute name="buttonGroup">
-              <string notr="true">loaderBtnGroup</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="quiltFilter">
-             <property name="text">
-              <string>Quilt</string>
+             <property name="checked">
+              <bool>true</bool>
              </property>
-             <attribute name="buttonGroup">
-              <string notr="true">loaderBtnGroup</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="liteLoaderFilter">
-             <property name="text">
-              <string>LiteLoader</string>
+             <property name="toolTip">
+              <string>JL installs Fabric.</string>
              </property>
              <attribute name="buttonGroup">
               <string notr="true">loaderBtnGroup</string>

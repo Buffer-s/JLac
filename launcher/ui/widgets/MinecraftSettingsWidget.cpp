@@ -67,6 +67,12 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstance* instance, QW
         m_javaSettings = new JavaSettingsWidget(m_instance, this);
         m_ui->javaScrollArea->setWidget(m_javaSettings);
 
+        // JL is Fabric-only: hide the loader checkboxes it never installs so the
+        // settings page cannot promise something the launcher will not do.
+        for (auto* loader : { m_ui->neoForge, m_ui->forge, m_ui->quilt, m_ui->liteLoader, m_ui->rift }) {
+            loader->hide();
+        }
+
         m_ui->showGameTime->setText(tr("Show time &playing this instance"));
         m_ui->recordGameTime->setText(tr("&Record time playing this instance"));
         m_ui->showGlobalGameTime->hide();
@@ -120,8 +126,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstance* instance, QW
             }
         });
 
-        for (auto* c : { m_ui->neoForge, m_ui->forge, m_ui->fabric, m_ui->quilt, m_ui->liteLoader, m_ui->babric, m_ui->btaBabric,
-                         m_ui->legacyFabric, m_ui->ornithe, m_ui->rift }) {
+        for (auto* c : { m_ui->fabric, m_ui->babric, m_ui->btaBabric, m_ui->legacyFabric, m_ui->ornithe }) {
             connect(c, &QCheckBox::checkStateChanged, this, &MinecraftSettingsWidget::saveSelectedLoaders);
         }
         auto latestVersion = m_instance->settings()->getSetting("UseLatestMinecraftVersion");
@@ -283,29 +288,30 @@ void MinecraftSettingsWidget::loadSettings()
         m_ui->loaderGroup->setChecked(overrideLoaders);
 
         if (overrideLoaders) {
-            m_ui->neoForge->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::NeoForge)));
-            m_ui->forge->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Forge)));
+            // JL only offers Fabric, so every other loader checkbox is forced off.
+            m_ui->neoForge->setChecked(false);
+            m_ui->forge->setChecked(false);
             m_ui->fabric->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Fabric)));
-            m_ui->quilt->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Quilt)));
-            m_ui->liteLoader->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::LiteLoader)));
+            m_ui->quilt->setChecked(false);
+            m_ui->liteLoader->setChecked(false);
             m_ui->babric->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Babric)));
             m_ui->btaBabric->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::BTA)));
             m_ui->legacyFabric->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::LegacyFabric)));
             m_ui->ornithe->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Ornithe)));
-            m_ui->rift->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Rift)));
+            m_ui->rift->setChecked(false);
         } else {
             auto instLoaders = m_instance->getPackProfile()->getSupportedModLoaders().value_or(ModPlatform::ModLoaderTypes(0));
 
-            m_ui->neoForge->setChecked(instLoaders.testAnyFlags(ModPlatform::NeoForge));
-            m_ui->forge->setChecked(instLoaders.testAnyFlags(ModPlatform::Forge));
+            m_ui->neoForge->setChecked(false);
+            m_ui->forge->setChecked(false);
             m_ui->fabric->setChecked(instLoaders.testAnyFlags(ModPlatform::Fabric));
-            m_ui->quilt->setChecked(instLoaders.testAnyFlags(ModPlatform::Quilt));
-            m_ui->liteLoader->setChecked(instLoaders.testAnyFlags(ModPlatform::LiteLoader));
+            m_ui->quilt->setChecked(false);
+            m_ui->liteLoader->setChecked(false);
             m_ui->babric->setChecked(instLoaders.testAnyFlags(ModPlatform::Babric));
             m_ui->btaBabric->setChecked(instLoaders.testAnyFlags(ModPlatform::BTA));
             m_ui->legacyFabric->setChecked(instLoaders.testAnyFlags(ModPlatform::LegacyFabric));
             m_ui->ornithe->setChecked(instLoaders.testAnyFlags(ModPlatform::Ornithe));
-            m_ui->rift->setChecked(instLoaders.testAnyFlags(ModPlatform::Rift));
+            m_ui->rift->setChecked(false);
         }
 
         m_ui->loaderGroup->blockSignals(false);
@@ -577,20 +583,8 @@ void MinecraftSettingsWidget::saveSelectedLoaders()
 {
     QStringList loaders;
 
-    if (m_ui->neoForge->isChecked()) {
-        loaders << getModLoaderAsString(ModPlatform::NeoForge);
-    }
-    if (m_ui->forge->isChecked()) {
-        loaders << getModLoaderAsString(ModPlatform::Forge);
-    }
     if (m_ui->fabric->isChecked()) {
         loaders << getModLoaderAsString(ModPlatform::Fabric);
-    }
-    if (m_ui->quilt->isChecked()) {
-        loaders << getModLoaderAsString(ModPlatform::Quilt);
-    }
-    if (m_ui->liteLoader->isChecked()) {
-        loaders << getModLoaderAsString(ModPlatform::LiteLoader);
     }
     if (m_ui->babric->isChecked()) {
         loaders << getModLoaderAsString(ModPlatform::Babric);
@@ -604,9 +598,7 @@ void MinecraftSettingsWidget::saveSelectedLoaders()
     if (m_ui->ornithe->isChecked()) {
         loaders << getModLoaderAsString(ModPlatform::Ornithe);
     }
-    if (m_ui->rift->isChecked()) {
-        loaders << getModLoaderAsString(ModPlatform::Rift);
-    }
+
 
     m_instance->settings()->set("ModDownloadLoaders", Json::fromStringList(loaders));
 }

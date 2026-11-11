@@ -83,7 +83,7 @@ PrismUpdaterApp::PrismUpdaterApp(int& argc, char** argv) : QApplication(argc, ar
 
     // Command line parsing
     QCommandLineParser parser;
-    parser.setApplicationDescription(QObject::tr("An auto-updater for Prism Launcher"));
+    parser.setApplicationDescription(QObject::tr("An auto-updater for JL"));
 
     parser.addOptions(
         { { { "d", "dir" }, tr("Use a custom path as application root (use '.' for current directory)."), tr("directory") },
@@ -456,7 +456,7 @@ void PrismUpdaterApp::run()
 
     if (m_isFlatpak) {
         showFatalErrorMessage(tr("Updating flatpack not supported"), tr("Actions outside of checking if an update is available are not "
-                                                                        "supported when running the flatpak version of Prism Launcher."));
+                                                                        "supported when running the flatpak version of JL."));
         return;
     }
     if (m_isAppimage) {
@@ -910,7 +910,7 @@ void PrismUpdaterApp::performInstall(const QFileInfo& file)
                "\n"
                "This likely means that a previous update attempt failed. Please ensure your installation is in working order before "
                "proceeding.\n"
-               "Check the Prism Launcher updater log at: \n"
+               "Check the JL updater log at: \n"
                "%7\n"
                "for details on the last update attempt.\n"
                "\n"
@@ -1028,13 +1028,13 @@ void PrismUpdaterApp::backupAppDir()
     if (fileList.isEmpty()) {
         // best guess
         if (BuildConfig.BUILD_ARTIFACT.toLower().contains("linux")) {
-            fileList.append({ "PrismLauncher", "bin", "share", "lib" });
+            fileList.append({ "JL", "bin", "share", "lib" });
         } else {  // windows by process of elimination
             fileList.append({
                 "jars",
-                "prismlauncher.exe",
-                "prismlauncher_filelink.exe",
-                "prismlauncher_updater.exe",
+                "JL.exe",
+                "JL_filelink.exe",
+                "JL_updater.exe",
                 "qtlogging.ini",
                 "imageformats",
                 "iconengines",
@@ -1054,7 +1054,7 @@ void PrismUpdaterApp::backupAppDir()
         FS::PathCombine(appDir.absolutePath(),
                         QStringLiteral("backup_") + QString(m_prismVersion).replace(s_replaceRegex, QString("_")) + "-" + m_prismGitCommit);
     FS::ensureFolderPathExists(backupDir);
-    auto backupMarkerPath = FS::PathCombine(m_dataPath, ".prism_launcher_update_backup_path.txt");
+    auto backupMarkerPath = FS::PathCombine(m_dataPath, ".jl_update_backup_path.txt");
     if (auto res = FS::write(backupMarkerPath, backupDir.toUtf8()); !res) {
         qFatal("Failed to write backup marker: %s", res.error().toUtf8().constData());
     }

@@ -147,6 +147,11 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended)
     connect(m_ui->versions, &CheckComboBox::checkedItemsChanged, this, [this] { onVersionFilterChanged(0); });
     connect(m_ui->version, &QComboBox::currentTextChanged, this, &ModFilterWidget::onVersionFilterTextChanged);
 
+    // JL is Fabric-only: hide loaders it cannot launch.
+    for (auto* loader : { m_ui->neoForge, m_ui->forge, m_ui->quilt, m_ui->liteLoader, m_ui->rift }) {
+        loader->hide();
+    }
+
     connect(m_ui->neoForge, &QCheckBox::checkStateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(m_ui->forge, &QCheckBox::checkStateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(m_ui->fabric, &QCheckBox::checkStateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
@@ -245,16 +250,17 @@ void ModFilterWidget::prepareBasicFilter()
         } else {
             loaders = m_instance->getPackProfile()->getSupportedModLoaders().value_or(ModPlatform::ModLoaderTypes(0));
         }
-        m_ui->neoForge->setChecked(loaders.testAnyFlag(ModPlatform::NeoForge));
-        m_ui->forge->setChecked(loaders.testAnyFlag(ModPlatform::Forge));
+        // JL is Fabric-only.
+        m_ui->neoForge->setChecked(false);
+        m_ui->forge->setChecked(false);
         m_ui->fabric->setChecked(loaders.testAnyFlag(ModPlatform::Fabric));
-        m_ui->quilt->setChecked(loaders.testAnyFlag(ModPlatform::Quilt));
-        m_ui->liteLoader->setChecked(loaders.testAnyFlag(ModPlatform::LiteLoader));
+        m_ui->quilt->setChecked(false);
+        m_ui->liteLoader->setChecked(false);
         m_ui->babric->setChecked(loaders.testAnyFlag(ModPlatform::Babric));
         m_ui->btaBabric->setChecked(loaders.testAnyFlag(ModPlatform::BTA));
         m_ui->legacyFabric->setChecked(loaders.testAnyFlag(ModPlatform::LegacyFabric));
         m_ui->ornithe->setChecked(loaders.testAnyFlag(ModPlatform::Ornithe));
-        m_ui->rift->setChecked(loaders.testAnyFlag(ModPlatform::Rift));
+        m_ui->rift->setChecked(false);
         m_filter->loaders = loaders;
         auto def = m_instance->getPackProfile()->getComponentVersion("net.minecraft");
         m_filter->versions.emplace_back(def);
@@ -295,20 +301,8 @@ void ModFilterWidget::onVersionFilterChanged(int /*unused*/)
 void ModFilterWidget::onLoadersFilterChanged()
 {
     ModPlatform::ModLoaderTypes loaders;
-    if (m_ui->neoForge->isChecked()) {
-        loaders |= ModPlatform::NeoForge;
-    }
-    if (m_ui->forge->isChecked()) {
-        loaders |= ModPlatform::Forge;
-    }
     if (m_ui->fabric->isChecked()) {
         loaders |= ModPlatform::Fabric;
-    }
-    if (m_ui->quilt->isChecked()) {
-        loaders |= ModPlatform::Quilt;
-    }
-    if (m_ui->liteLoader->isChecked()) {
-        loaders |= ModPlatform::LiteLoader;
     }
     if (m_ui->babric->isChecked()) {
         loaders |= ModPlatform::Babric;
@@ -321,9 +315,6 @@ void ModFilterWidget::onLoadersFilterChanged()
     }
     if (m_ui->ornithe->isChecked()) {
         loaders |= ModPlatform::Ornithe;
-    }
-    if (m_ui->rift->isChecked()) {
-        loaders |= ModPlatform::Rift;
     }
     m_filterChanged = loaders != m_filter->loaders;
     m_filter->loaders = loaders;
