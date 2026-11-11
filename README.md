@@ -51,18 +51,6 @@ Grab the latest `JL.exe` (or the full portable `JL-Windows-x64.zip`) from the
 [releases page](https://github.com/bufferclick/JLac/releases). Unzip anywhere and
 run it — the portable zip keeps every instance, mod and setting next to the exe.
 
-## Open source
-
-JL is **open source** under the GPL-3.0, the same licence Prism Launcher uses.
-The source lives at **[github.com/bufferclick/JLac](https://github.com/bufferclick/JLac)**
-— issues, pull requests and forks are welcome.
-
-<p align="center">
-  <a href="https://github.com/bufferclick/JLac">
-    <img alt="View in GitHub" src="https://img.shields.io/badge/View%20in-GitHub-0B0B0C?style=for-the-badge&logo=github&logoColor=white">
-  </a>
-</p>
-
 ## Building
 
 JL builds exactly like Prism Launcher does: CMake 3.25+, Qt 6.8+, a C++23
